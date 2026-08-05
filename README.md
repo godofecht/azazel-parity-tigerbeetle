@@ -35,15 +35,14 @@ cd zaza  && ./fetch.sh && zig build                            # -> zig-out/lib/
 
 ## Comparison
 
-| Build | How `vsr_options` is supplied | Config size |
-|-------|-------------------------------|-------------|
-| azazel | `option_values`, declared as data | `project.cue`, 21 lines |
-| zaza | `addOptions`, built imperatively | `build.zig`,       42 lines |
-| upstream (native) | its own `build.zig` `addOptions` | `build.zig`,     2511 lines |
+Clean-cache builds with dependencies pre-fetched, Apple Silicon, fastest of two runs.
+`native` is tigerbeetle's own full `zig build`.
 
-### Organizational structure
+| Build | Clean build | Config |
+|-------|-------------|--------|
+| azazel | 3.2 s | `project.cue` — 21 lines · 848 B |
+| zaza | 3.0 s | `build.zig` — 42 lines · 1591 B |
+| native (tigerbeetle's own full `zig build`) | 12.0 s | — |
 
-azazel states the four option values (including `git_commit: ?[40]u8`) as CUE
-data; a module then imports `vsr_options` with no build code. zaza writes the
-`b.addOptions()` calls directly. Both produce the same `libtb_vsr.a`. The trade
-is data vs code for the same injected options module.
+**The scoped VSR slice compiles in ~3 s against tigerbeetle's ~12 s full build — azazel and zaza are ~3.7x faster because they build only what the slice needs.**
+
