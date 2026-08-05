@@ -1,0 +1,7 @@
+.{
+    .name = .azazel_parity_tigerbeetle,
+    .version = "0.0.0",
+    .fingerprint = 0xd2f1a6229e8b44f2,
+    .paths = .{""},
+    .dependencies = .{},
+}

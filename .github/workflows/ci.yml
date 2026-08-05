@@ -1,0 +1,41 @@
+name: parity
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  azazel:
+    name: azazel builds VSR (option_values as data)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.14.1
+      - name: Install CUE
+        run: |
+          curl -sL "https://github.com/cue-lang/cue/releases/download/v0.11.1/cue_v0.11.1_linux_amd64.tar.gz" -o /tmp/cue.tgz
+          sudo tar -xzf /tmp/cue.tgz -C /usr/local/bin cue
+      - name: Stage tigerbeetle source
+        run: ./azazel/fetch.sh
+      - name: Build VSR via azazel (CUE model)
+        working-directory: azazel
+        run: |
+          sh gen_build_spec.sh
+          time zig build
+          test -f zig-out/lib/libtb_vsr.a && echo "OK: libtb_vsr.a"
+  zaza:
+    name: zaza builds VSR (addOptions imperative)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.14.1
+      - name: Stage tigerbeetle source
+        run: ./zaza/fetch.sh
+      - name: Build VSR via zaza
+        working-directory: zaza
+        run: |
+          time zig build
+          test -f zig-out/lib/libtb_vsr.a && echo "OK: libtb_vsr.a"
