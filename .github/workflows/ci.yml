@@ -7,6 +7,8 @@ jobs:
   azazel:
     name: azazel builds VSR (option_values as data)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # upload build artifacts to this repo's 'cache' release
     steps:
       - uses: actions/checkout@v4
       - name: Cache Zig global cache
@@ -27,9 +29,11 @@ jobs:
         run: ./azazel/fetch.sh
       - name: Build VSR via azazel (CUE model)
         working-directory: azazel
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          sh gen_build_spec.sh
-          time zig build
+          # free model-keyed shared cache: HIT downloads zig-out and skips the build
+          time sh cache_build.sh
           test -f zig-out/lib/libtb_vsr.a && echo "OK: libtb_vsr.a"
   zaza:
     name: zaza builds VSR (addOptions imperative)
